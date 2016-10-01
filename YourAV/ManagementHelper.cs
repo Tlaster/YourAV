@@ -10,6 +10,7 @@ namespace YourAV
     internal static class ManagementHelper
     {
         private static readonly string wmipathstr = @"\\" + Environment.MachineName + @"\root\SecurityCenter:AntiVirusProduct";
+        //private static readonly string wmipathstr = @"\\" + Environment.MachineName + @"\root\SecurityCenter2:AntiVirusProduct";
         public static bool RemoveAllAntivirus()
         {
             try
@@ -17,7 +18,8 @@ namespace YourAV
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM AntivirusProduct");
                 ManagementObjectCollection instances = searcher.Get();
                 foreach (ManagementObject obj in instances)
-                    obj.Delete();
+                    if (obj.GetPropertyValue("displayName").ToString() != "Windows Defender")
+                        obj.Delete();
                 return true;
             }
             catch
@@ -25,16 +27,26 @@ namespace YourAV
                 return false;
             }
         }
-        public static bool AddAntivirus(string displayName, string instanceGuid, bool productUptoDate = true, bool onAccessScanningEnabled = true)
+        public static bool AddAntivirus(string displayName, string instanceGuid)
         {
             try
             {
+
                 ManagementClass avp = new ManagementClass(wmipathstr);
                 ManagementObject status = avp.CreateInstance();
                 status.SetPropertyValue("displayName", displayName);
-                status.SetPropertyValue("instanceGuid", instanceGuid);
-                status.SetPropertyValue("productUptoDate", productUptoDate);
-                status.SetPropertyValue("onAccessScanningEnabled", onAccessScanningEnabled);
+                status.SetPropertyValue("instanceGuid", $"{{{instanceGuid}}}");
+                status.SetPropertyValue("productUptoDate", true);
+                status.SetPropertyValue("onAccessScanningEnabled", true);
+
+                //ManagementClass avp = new ManagementClass(wmipathstr);
+                //ManagementObject status = avp.CreateInstance();
+                //status.SetPropertyValue("displayName", displayName);
+                //status.SetPropertyValue("instanceGuid", $"{{{instanceGuid}}}");
+                //status.SetPropertyValue("productState", new Random().Next());
+                //status.SetPropertyValue("timestamp", DateTime.UtcNow.ToString());
+                //status.SetPropertyValue("pathToSignedProductExe", $"{AppDomain.CurrentDomain.BaseDirectory}\\YourAV.exe");
+                //status.SetPropertyValue("pathToSignedReportingExe", $"{AppDomain.CurrentDomain.BaseDirectory}\\YourAV.exe");
                 status.Put();
                 return true;
             }
@@ -49,7 +61,7 @@ namespace YourAV
             {
                 ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmipathstr, "SELECT * FROM AntivirusProduct");
                 ManagementObjectCollection instances = searcher.Get();
-                return instances.Count > 0;
+                return instances.Count > 0 && instances.Cast<ManagementObject>().Any(item => item.GetPropertyValue("displayName").ToString() != "Windows Defender");
             }
             catch
             {
