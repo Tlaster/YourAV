@@ -49,9 +49,16 @@ namespace YourAV
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             if (IsAntivirusInstalled())
+            {
                 RemoveAllAntivirus();
+                //RemoveAllAntivirus2();
+            }
             else
+            {
                 AddAntivirus(AVName, AVGuid);
+                //AddAntivirus2(AVName, AVGuid);
+            }
+            RestartService("Windows Management Instrumentation");
             App.ChangeTheme();
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IconKind)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ButtonContent)));
