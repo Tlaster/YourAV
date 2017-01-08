@@ -72,3 +72,4 @@
 <br /> 
 #原理
 在安全中心注册一个杀毒软件而已，然后Windows Defender就识趣的关了
+https://ws4.sinaimg.cn/large/a15b4afegw1fbj5ri1i7fj20vp0lawi7.jpg
